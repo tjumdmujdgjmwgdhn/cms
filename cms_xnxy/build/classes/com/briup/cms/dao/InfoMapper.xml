@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.briup.cms.dao.InfoDao">
+	<!-- 添加栏目 -->
+	<insert id="addPart" parameterType="Category">
+		insert into tbl_category(id,code,name)
+		values(cms_seq.nextval,#{code},#{name})
+	</insert>
+	
+	<!-- 发布信息 -->
+	<insert id="pushArticle" parameterType="Article">
+		insert into tbl_article(id,author,clickTimes,content,publisurDate,title,c_id)
+		values(cms_seq.nextval,#{author},5,#{content},#{publisurDate},#{title},#{category.id})
+	</insert>
+	<!-- <resultMap type="Article" id="pushArticle">
+		<id column="id" property="id"/>
+		<result column="author" property="author"/>
+		<result column="clickTimes" property="clickTimes"/>
+		<result column="content" property="content"/>
+		<result column="publisurDate" property="publisurDate"/>
+		<result column="title" property="title"/>
+		<result column="c_id" property="category.id"/>
+	</resultMap>
+	 -->
+	
+	<!-- 查找所有栏目 -->
+	<select id="findAllPart" resultType="Category">
+		select * 
+		from tbl_category
+	</select>
+	
+	<!-- 删除栏目和此栏目中的文章 -->
+	<delete id="deletePart" parameterType="int">
+		 delete tbl_category
+		 where id=#{id}
+	</delete>
+	<delete id="deletePartArticle" parameterType="int">
+		delete tbl_article
+		where c_id=#{id}
+	</delete>
+	
+	<delete id="deleteArticle" parameterType="int">
+		delete tbl_article
+		where id=#{article_id}
+	</delete>
+	
+	<!-- 更新栏目 -->
+	<update id="updatePart" parameterType="Category">
+		update tbl_category
+		set name=#{name},code=#{code}
+		where id=#{id}
+	</update>
+	
+	<!-- 查找所有的文章 -->
+	<select id="findAllArticleList" resultMap="ArticleAndCagegory" >
+		select a.id a_id,
+		a.title a_title,
+		c.name c_name,
+		c.id c_id,
+		a.author a_author,
+		a.publisurDate a_publisurDate,
+		a.clickTimes a_clickTimes,
+		a.content c_content
+		from tbl_article a,tbl_category c
+		where a.c_id=c.id
+	</select>
+	<resultMap type="Article" id="ArticleAndCagegory">
+		<id column="a_id" property="id"/>
+		<result column="a_title" property="title"/>
+		<result column="c_id" property="category.id"/>
+		<result column="c_name" property="category.name"/>
+		<result column="a_author" property="author"/>
+		<result column="a_publisurDate" property="publisurDate"/>
+		<result column="a_clickTimes" property="clickTimes"/>
+		<result column="c_content" property="content"/>
+	</resultMap>
+	
+	<!-- 更新文章 ,author=#{author},c_id=#{category.id},content=#{content}-->
+	<update id="updateArticle" parameterType="Article">
+		update tbl_article
+		set title=#{title},author=#{author},c_id=#{category.id},content=#{content}
+		where id=#{id}
+	</update>
+	
+	<!-- 通过作者查找文章 -->
+	<select id="findArticleByAuthor" parameterType="String" resultMap="ArticleAndCagegory">
+		select a.id a_id,
+		a.title a_title,
+		c.name c_name,
+		c.id c_id,
+		a.author a_author,
+		a.publisurDate a_publisurDate,
+		a.clickTimes a_clickTimes,
+		a.content c_content
+		from tbl_article a,tbl_category c
+		where a.author like '%${value}%' and c.id=a.c_id
+	</select>
+	
+	<!-- 通过标题查找文章 -->
+	<select id="findArticleByTitle" parameterType="String" resultMap="ArticleAndCagegory">
+		select a.id a_id,
+		a.title a_title,
+		c.name c_name,
+		c.id c_id,
+		a.author a_author,
+		a.publisurDate a_publisurDate,
+		a.clickTimes a_clickTimes,
+		a.content c_content
+		from tbl_article a,tbl_category c
+		where a.title like '%${value}%' and c.id=a.c_id
+	</select>
+	
+	<!-- 通过category查找文章 -->
+	<select id="findArticleByCategory" parameterType="String" resultMap="ArticleAndCagegory">
+		select a.id a_id,
+		a.title a_title,
+		c.name c_name,
+		c.id c_id,
+		a.author a_author,
+		a.publisurDate a_publisurDate,
+		a.clickTimes a_clickTimes,
+		a.content c_content
+		from tbl_article a,tbl_category c
+		where c.name like '%${value}%' and c.id=a.c_id
+	</select>
+	
+	<!-- 添加友情链接 -->
+	<insert id="addFriendLink" parameterType="FriendLink">
+		insert into tbl_friendLink(id,name,address)
+		values(cms_seq.nextval,#{name},#{address})
+	</insert>
+	
+	<!-- 查找所有友情链接 -->
+	<select id="findAllFriendLink" resultType="FriendLink">
+		select *
+		from tbl_friendLink
+	</select>
+	
+	<!-- 删除友情链接 -->
+	<delete id="delFriendLink" parameterType="int">
+		delete tbl_friendLink
+		where id=#{id}
+	</delete>
+	
+	<!-- 修改友情链接 -->
+	<update id="updateFriendLink" parameterType="FriendLink">
+		update tbl_friendLink
+		set id=cms_seq.nextval,name=#{name},address=#{address}
+		where id=#{id}
+	</update>
+	
+	<!-- 通过id查找article -->
+	<select id="findArticleById" parameterType="Integer" resultType="Article">
+		select *
+		from tbl_article
+		where id=#{id}		
+	</select>
+	
+	<!-- 通过id查找category -->
+ 	<select id="findCategoryById" parameterType="Integer" resultType="Category">
+		select *
+		from tbl_category
+		where id=#{id}
+	</select> 
+	
+	<!-- 增加点击数 -->
+	<select id="addClick" parameterType="Article">
+		update tbl_article
+		set clickTimes=#{clickTimes}
+		where id=#{id}
+	</select>
+	
+</mapper>
